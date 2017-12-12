@@ -56,17 +56,6 @@ export class Terrain {
             }
             quality *= 5;
         }
-        // Smooth terrain
-        // for (let i = 0; i < size; i ++) {
-        //     const x = i % this.width, y = ~~(i / this.width);
-        //     try {
-        //         this.data[i] = (this.data[i] + this.data[x - 1 + y * this.width] + this.data[x + 1 + y * this.width] +
-        //                     this.data[x + (y - 1) * this.width] + this.data[x + (y + 1) * this.width]) / 5;
-
-        //     } catch (e) {
-        //         console.log("ERROR");
-        //     }
-        // }
     }
 
     private initGeometry(): void {
@@ -101,9 +90,9 @@ export class Terrain {
             { textureRock: { type: 't', value: textureRock } },
             { textureGrass: { type: 't', value: textureGrass } },
             { textureDirt: { type: 't', value: textureDirt } },
-            { textureRockRepeat: { value: 100 } },
-            { textureGrassRepeat: { value: 100 } },
-            { textureDirtRepeat: { value: 100 } }
+            { textureRockRepeat: { value: 200 } },
+            { textureGrassRepeat: { value: 200 } },
+            { textureDirtRepeat: { value: 200 } }
         ]);
 
         this.material = new THREE.ShaderMaterial({

@@ -5,10 +5,11 @@ import { Camera } from './../camera/camera';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as THREE from 'three';
 import 'three/examples/js/controls/OrbitControls';
+import { Water } from 'water/water';
 
 export const SCREEN = {
-  width  : window.innerWidth,
-  height : window.innerHeight
+  width: window.innerWidth,
+  height: window.innerHeight
 };
 
 @Component({
@@ -47,13 +48,14 @@ export class AppComponent implements OnInit {
     this.container.appendChild(this.renderer.domElement);
 
     const terrain = new Terrain(1000, 1000);
+    const water = new Water(1000, 1000);
     this.render();
   }
 
   public render(): void {
-      requestAnimationFrame(() => this.render());
-      this.renderer.render(this.scene, this.camera);
-      this.animate();
+    requestAnimationFrame(() => this.render());
+    this.renderer.render(this.scene, this.camera);
+    this.animate();
   }
 
   public animate(): void {
@@ -64,6 +66,6 @@ export class AppComponent implements OnInit {
     SCREEN.height = window.innerHeight;
     this.camera.aspect = screen.width / screen.height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize( screen.width, screen.height );
+    this.renderer.setSize(screen.width, screen.height);
   }
 }

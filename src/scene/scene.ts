@@ -15,13 +15,13 @@ export class Scene {
 
     private init(): void {
         this.directionnalLight.position.set(400, 400, 400);
-        this.directionnalLight.intensity = 1.0;
+        this.directionnalLight.intensity = 5.0;
         const dirLightHelper = new THREE.DirectionalLightHelper(this.directionnalLight);
         this.scene.add(dirLightHelper);
         this.scene.add(this.directionnalLight);
         this.scene.add(this.ambientLight);
         this.scene.background = new THREE.Color(0x000000);
-        this.scene.fog = new THREE.FogExp2(0xefd1b5, 0.0000);
+        this.scene.fog = new THREE.FogExp2(0x000000, 0.0005);
     }
 
     public static get Instance() {
