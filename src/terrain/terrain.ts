@@ -15,7 +15,7 @@ export class Terrain {
     private depth: number;
 
     private geometry: THREE.PlaneBufferGeometry;
-    private material: THREE.Material;
+    private material: THREE.ShaderMaterial;
     private mesh: THREE.Mesh;
 
     private min = 10000;
@@ -25,6 +25,10 @@ export class Terrain {
         this.scene = Scene.Instance.Scene;
         this.depth = depth;
         this.width = width;
+        this.init();
+    }
+
+    private init(): void {
         this.initData();
         this.initGeometry();
         this.initMaterial();
@@ -76,11 +80,30 @@ export class Terrain {
     }
 
     private initMaterial(): void {
+        const textureLoader = new THREE.TextureLoader();
+        const textureRock = textureLoader.load('assets/textures/rockTexture.jpg');
+        const textureGrass = textureLoader.load('assets/textures/grassTexture.jpg');
+        const textureDirt = textureLoader.load('assets/textures/dirtTexture.jpg');
+        textureRock.wrapS = textureRock.wrapT = THREE.RepeatWrapping;
+        textureGrass.wrapS = textureGrass.wrapT = THREE.RepeatWrapping;
+        textureDirt.wrapS = textureDirt.wrapT = THREE.RepeatWrapping;
+        textureRock.minFilter = THREE.LinearMipMapLinearFilter;
+        textureRock.magFilter = THREE.NearestFilter;
+        textureGrass.minFilter = THREE.LinearMipMapLinearFilter;
+        textureGrass.magFilter = THREE.NearestFilter;
+        textureDirt.minFilter = THREE.LinearMipMapLinearFilter;
+        textureDirt.magFilter = THREE.NearestFilter;
         const uniforms = THREE.UniformsUtils.merge([
             THREE.ShaderLib.phong.uniforms,
-            { minVal: { value: this.min }},
-            { maxVal: { value: this.max }},
-            {shininess: { value: 0.1}}
+            { minVal: { value: this.min } },
+            { maxVal: { value: this.max } },
+            { shininess: { value: 0.1 } },
+            { textureRock: { type: 't', value: textureRock } },
+            { textureGrass: { type: 't', value: textureGrass } },
+            { textureDirt: { type: 't', value: textureDirt } },
+            { textureRockRepeat: { value: 100 } },
+            { textureGrassRepeat: { value: 100 } },
+            { textureDirtRepeat: { value: 100 } }
         ]);
 
         this.material = new THREE.ShaderMaterial({
@@ -88,13 +111,12 @@ export class Terrain {
             vertexShader: TERRAIN_VERTEX_SHADER,
             fragmentShader: TERRAIN_FRAGMENT_SHADER,
             lights: true,
-            fog: true
+            fog: true,
         }
         );
-        // this.material = new THREE.MeshPhongMaterial({
-        //     color: 0xffffff,
-        //     wireframe: false
-        // });
+        this.material.uniforms.textureRock.value.needsUpdate = true;
+        this.material.uniforms.textureGrass.value.needsUpdate = true;
+        this.material.uniforms.textureDirt.value.needsUpdate = true;
     }
 
     private initMesh(): void {

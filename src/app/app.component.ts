@@ -48,7 +48,6 @@ export class AppComponent implements OnInit {
 
     const terrain = new Terrain(1000, 1000);
     this.render();
-    console.log(terrain.getMesh().material);
   }
 
   public render(): void {

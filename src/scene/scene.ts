@@ -9,16 +9,19 @@ export class Scene {
     private constructor() {
         this.scene = new THREE.Scene();
         this.ambientLight = new THREE.AmbientLight(0x333333);
-        this.directionnalLight = new THREE.DirectionalLight(0xaaaaaa);
+        this.directionnalLight = new THREE.DirectionalLight(0xffffff);
         this.init();
     }
 
     private init(): void {
-        this.directionnalLight.position.set(50, 50, 50);
+        this.directionnalLight.position.set(400, 400, 400);
+        this.directionnalLight.intensity = 1.0;
+        const dirLightHelper = new THREE.DirectionalLightHelper(this.directionnalLight);
+        this.scene.add(dirLightHelper);
         this.scene.add(this.directionnalLight);
         this.scene.add(this.ambientLight);
-        this.scene.background = new THREE.Color( 0xefd1b5 );
-        this.scene.fog = new THREE.FogExp2(0xefd1b5, 0.0006);
+        this.scene.background = new THREE.Color(0x000000);
+        this.scene.fog = new THREE.FogExp2(0xefd1b5, 0.0000);
     }
 
     public static get Instance() {

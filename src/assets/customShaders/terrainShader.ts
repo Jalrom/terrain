@@ -4,6 +4,7 @@ export const TERRAIN_VERTEX_SHADER =
 
     varying vec3 vViewPosition;
     varying vec3 vUv;
+    varying vec2 tUv;
 
     #ifndef FLAT_SHADED
         varying vec3 vNormal;
@@ -56,6 +57,7 @@ export const TERRAIN_VERTEX_SHADER =
         #include <fog_vertex>
 
         vUv = position;
+        tUv = uv;
         vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * modelViewPosition;
     }`
@@ -65,9 +67,16 @@ export const TERRAIN_FRAGMENT_SHADER =
     `
     #define PHONG
 
+    uniform sampler2D textureRock;
+    uniform sampler2D textureGrass;
+    uniform sampler2D textureDirt;
+    uniform float textureRockRepeat;
+    uniform float textureGrassRepeat;
+    uniform float textureDirtRepeat;
     uniform float minVal;
     uniform float maxVal;
     varying vec3 vUv;
+    varying vec2 tUv;
 
     uniform vec3 diffuse;
     uniform vec3 emissive;
@@ -108,10 +117,13 @@ export const TERRAIN_FRAGMENT_SHADER =
         vec3 green = vec3(0.03, 0.4, 0.13);
 
         vec3 actualColor;
+        vec4 actualTexture;
         if(vUv.y > maxVal/2.0) {
-            actualColor = mix(brown, white, (vUv.y - maxVal/2.0)/maxVal);      
+            actualColor = mix(brown, white, (vUv.y - maxVal/2.0)/maxVal);
+            actualTexture = mix(texture2D(textureDirt, tUv * textureDirtRepeat),texture2D(textureRock, tUv * textureRockRepeat),(vUv.y - maxVal/2.0)/maxVal);      
         } else {
             actualColor = mix(green, brown, (vUv.y + maxVal/2.0)/maxVal);
+            actualTexture = mix(texture2D(textureGrass, tUv * textureGrassRepeat),texture2D(textureDirt, tUv * textureDirtRepeat),(vUv.y + maxVal/2.0)/maxVal);      
         }
         vec4 diffuseColor = vec4( actualColor, opacity );
         ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
@@ -138,7 +150,7 @@ export const TERRAIN_FRAGMENT_SHADER =
         #include <envmap_fragment>
 
 
-        gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+        gl_FragColor = clamp(actualTexture* vec4(outgoingLight, diffuseColor.a), 0.0, 1.0);
 
         #include <tonemapping_fragment>
         #include <encodings_fragment>
