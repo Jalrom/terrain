@@ -17,6 +17,7 @@ export class Terrain {
 
     private geometry: THREE.PlaneBufferGeometry;
     private material: THREE.ShaderMaterial;
+    private materialReflection: THREE.ShaderMaterial;
     private mesh: THREE.Mesh;
 
     private meshReflection: THREE.Mesh;
@@ -72,6 +73,7 @@ export class Terrain {
     }
 
     private initMaterial(): void {
+        const localPlane = new THREE.Plane( new THREE.Vector3( 0, -1, 0 ), -25.0 );
         const textureLoader = new THREE.TextureLoader();
         const textureRock = textureLoader.load('assets/textures/rockTexture.jpg');
         const textureGrass = textureLoader.load('assets/textures/grassTexture.jpg');
@@ -98,14 +100,25 @@ export class Terrain {
             { textureDirtRepeat: { value: 200 } }
         ]);
 
-        this.material = new THREE.ShaderMaterial({
+        this.materialReflection = new THREE.ShaderMaterial({
             uniforms: uniforms,
             vertexShader: TERRAIN_VERTEX_SHADER,
             fragmentShader: TERRAIN_FRAGMENT_SHADER,
             lights: true,
             fog: true,
-        }
-        );
+            clippingPlanes: [localPlane],
+            clipShadows: true,
+            clipping: true,
+            side: THREE.DoubleSide
+        });
+        this.material = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: TERRAIN_VERTEX_SHADER,
+            fragmentShader: TERRAIN_FRAGMENT_SHADER,
+            lights: true,
+            fog: true
+        });
+        console.log(this.material);
         this.material.uniforms.textureRock.value.needsUpdate = true;
         this.material.uniforms.textureGrass.value.needsUpdate = true;
         this.material.uniforms.textureDirt.value.needsUpdate = true;
@@ -114,11 +127,12 @@ export class Terrain {
 
     private initMesh(): void {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        this.meshReflection = new THREE.Mesh(this.geometry, this.material);
+        this.meshReflection = new THREE.Mesh(this.geometry, this.materialReflection);
         this.mesh.name = 'terrain';
         this.mesh.geometry.computeVertexNormals();
         this.meshReflection.name = 'terrain';
         this.meshReflection.geometry.computeVertexNormals();
+        this.meshReflection.scale.setY(-1.0);
         this.bufferScene.add(this.meshReflection);
         this.scene.add(this.mesh);
     }

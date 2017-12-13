@@ -31,13 +31,16 @@ export class Water {
     }
 
     private initMaterial(): void {
-        const uniforms = {
-            tDiffuse: { type: 't', value: Scene.Instance.BufferTexture.texture }
-        };
+                const uniforms = THREE.UniformsUtils.merge([
+            THREE.ShaderLib.phong.uniforms,
+            { tDiffuse: { type: 't', value: Scene.Instance.BufferTexture.texture } }
+        ]);
+
         this.material = new THREE.ShaderMaterial({
             uniforms: uniforms,
             vertexShader: WATER_VERTEX_SHADER,
-            fragmentShader: WATER_FRAGMENT_SHADER
+            fragmentShader: WATER_FRAGMENT_SHADER,
+            lights: true
         });
 
         uniforms.tDiffuse.value.needsUpdate = true;

@@ -5,11 +5,12 @@ export class Renderer {
     private renderer: THREE.WebGLRenderer;
 
     private constructor() {
-        this.renderer = new THREE.WebGLRenderer({antialias: true, devicePixelRatio: window.devicePixelRatio});
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, devicePixelRatio: window.devicePixelRatio });
         this.init();
     }
 
     private init(): void {
+
     }
 
     public static get Instance() {
