@@ -73,7 +73,6 @@ export class Terrain {
     }
 
     private initMaterial(): void {
-        const localPlane = new THREE.Plane( new THREE.Vector3( 0, -1, 0 ), -25.0 );
         const textureLoader = new THREE.TextureLoader();
         const textureRock = textureLoader.load('assets/textures/rockTexture.jpg');
         const textureGrass = textureLoader.load('assets/textures/grassTexture.jpg');
@@ -87,6 +86,20 @@ export class Terrain {
         textureGrass.magFilter = THREE.NearestFilter;
         textureDirt.minFilter = THREE.LinearMipMapLinearFilter;
         textureDirt.magFilter = THREE.NearestFilter;
+        const uniformsReflection = THREE.UniformsUtils.merge([
+            THREE.ShaderLib.phong.uniforms,
+            { minVal: { value: this.min } },
+            { maxVal: { value: this.max } },
+            { shininess: { value: 0.1 } },
+            { textureRock: { type: 't', value: textureRock } },
+            { textureGrass: { type: 't', value: textureGrass } },
+            { textureDirt: { type: 't', value: textureDirt } },
+            { textureRockRepeat: { value: 200 } },
+            { textureGrassRepeat: { value: 200 } },
+            { textureDirtRepeat: { value: 200 } },
+            { reflection: { value: 1.0 } }
+        ]);
+
         const uniforms = THREE.UniformsUtils.merge([
             THREE.ShaderLib.phong.uniforms,
             { minVal: { value: this.min } },
@@ -97,18 +110,16 @@ export class Terrain {
             { textureDirt: { type: 't', value: textureDirt } },
             { textureRockRepeat: { value: 200 } },
             { textureGrassRepeat: { value: 200 } },
-            { textureDirtRepeat: { value: 200 } }
+            { textureDirtRepeat: { value: 200 } },
+            { reflection: { value: 0.0 } }
         ]);
 
         this.materialReflection = new THREE.ShaderMaterial({
-            uniforms: uniforms,
+            uniforms: uniformsReflection,
             vertexShader: TERRAIN_VERTEX_SHADER,
             fragmentShader: TERRAIN_FRAGMENT_SHADER,
             lights: true,
             fog: true,
-            clippingPlanes: [localPlane],
-            clipShadows: true,
-            clipping: true,
             side: THREE.DoubleSide
         });
         this.material = new THREE.ShaderMaterial({
@@ -122,7 +133,9 @@ export class Terrain {
         this.material.uniforms.textureRock.value.needsUpdate = true;
         this.material.uniforms.textureGrass.value.needsUpdate = true;
         this.material.uniforms.textureDirt.value.needsUpdate = true;
-
+        this.materialReflection.uniforms.textureRock.value.needsUpdate = true;
+        this.materialReflection.uniforms.textureGrass.value.needsUpdate = true;
+        this.materialReflection.uniforms.textureDirt.value.needsUpdate = true;
     }
 
     private initMesh(): void {
@@ -130,15 +143,20 @@ export class Terrain {
         this.meshReflection = new THREE.Mesh(this.geometry, this.materialReflection);
         this.mesh.name = 'terrain';
         this.mesh.geometry.computeVertexNormals();
-        this.meshReflection.name = 'terrain';
+        this.meshReflection.name = 'terrainReflection';
         this.meshReflection.geometry.computeVertexNormals();
         this.meshReflection.scale.setY(-1.0);
+        this.meshReflection.geometry.computeVertexNormals();
         this.bufferScene.add(this.meshReflection);
         this.scene.add(this.mesh);
     }
 
     public getMesh(): THREE.Mesh {
         return this.mesh;
+    }
+
+    public getMeshReflection(): THREE.Mesh {
+        return this.meshReflection;
     }
 
     public update(): void {

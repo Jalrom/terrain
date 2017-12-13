@@ -31,9 +31,9 @@ export class Water {
     }
 
     private initMaterial(): void {
-                const uniforms = THREE.UniformsUtils.merge([
+            const uniforms = THREE.UniformsUtils.merge([
             THREE.ShaderLib.phong.uniforms,
-            { tDiffuse: { type: 't', value: Scene.Instance.BufferTexture.texture } }
+            { tDiffuse: { type: 't', value: Scene.Instance.BufferTexture.texture } },
         ]);
 
         this.material = new THREE.ShaderMaterial({
@@ -56,5 +56,9 @@ export class Water {
 
     public update(): void {
         this.material.uniforms.tDiffuse.value = Scene.Instance.BufferTexture;
+    }
+
+    public getMesh(): THREE.Mesh {
+        return this.mesh;
     }
 }

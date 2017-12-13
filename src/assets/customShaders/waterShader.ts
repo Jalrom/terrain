@@ -58,10 +58,10 @@ export const WATER_VERTEX_SHADER =
         #include <fog_vertex>
         
         vUv = uv;
-        rawPos = position;
-        vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+        rawPos = vec3(position.x, position.y, position.z);
+        vec4 modelViewPosition = modelViewMatrix * vec4(rawPos, 1.0);
         gl_Position = projectionMatrix * modelViewPosition;
-        pos = gl_Position;
+        pos = vec4(gl_Position.x, gl_Position.y, gl_Position.z, gl_Position.w) ;
     }`;
 
 export const WATER_FRAGMENT_SHADER =
@@ -132,9 +132,6 @@ void main() {
 
 	#include <envmap_fragment>
 
-    if(rawPos.y > 25.0) {
-        discard;
-    }
     vec2 screen = (pos.xy/pos.z + 1.0)*0.5;
 	gl_FragColor = clamp( texture2D( tDiffuse, screen) * vec4( outgoingLight, diffuseColor.a ), 0.0, 1.0);
 

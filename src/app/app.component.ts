@@ -57,12 +57,14 @@ export class AppComponent implements OnInit {
     this.terrain = new Terrain(1000, 1000);
     this.water = new Water(1000, 1000);
     this.renderer.localClippingEnabled = true;
+    this.terrain.getMeshReflection().translateY(25.0);
     this.render();
   }
 
   public render(): void {
     requestAnimationFrame(() => this.render());
     this.water.update();
+    
     this.renderer.render(this.bufferScene, this.camera, this.bufferTexture);
     this.renderer.render(this.scene, this.camera);
     this.animate();
