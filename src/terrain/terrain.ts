@@ -9,6 +9,7 @@ const TERRAIN_HEIGHT = 100;
 export class Terrain {
 
     private scene: THREE.Scene;
+    private bufferScene: THREE.Scene;
 
     private data: Uint8Array;
     private width: number;
@@ -18,11 +19,14 @@ export class Terrain {
     private material: THREE.ShaderMaterial;
     private mesh: THREE.Mesh;
 
+    private meshReflection: THREE.Mesh;
+
     private min = 10000;
     private max = 0;
 
     constructor(depth: number, width: number) {
         this.scene = Scene.Instance.Scene;
+        this.bufferScene = Scene.Instance.BufferScene;
         this.depth = depth;
         this.width = width;
         this.init();
@@ -61,7 +65,6 @@ export class Terrain {
     private initGeometry(): void {
         this.geometry = new THREE.PlaneBufferGeometry(3000, 3000, this.width - 1, this.depth - 1);
         this.geometry.rotateX(- Math.PI / 2);
-
         const vertices = (this.geometry.attributes as any).position.array;
         for (let i = 0; i < vertices.length; i += 3) {
             vertices[i + 1] = this.data[i / 3];
@@ -106,15 +109,25 @@ export class Terrain {
         this.material.uniforms.textureRock.value.needsUpdate = true;
         this.material.uniforms.textureGrass.value.needsUpdate = true;
         this.material.uniforms.textureDirt.value.needsUpdate = true;
+
     }
 
     private initMesh(): void {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.meshReflection = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.name = 'terrain';
         this.mesh.geometry.computeVertexNormals();
+        this.meshReflection.name = 'terrain';
+        this.meshReflection.geometry.computeVertexNormals();
+        this.bufferScene.add(this.meshReflection);
         this.scene.add(this.mesh);
     }
 
     public getMesh(): THREE.Mesh {
         return this.mesh;
+    }
+
+    public update(): void {
+        //
     }
 }

@@ -26,11 +26,18 @@ export class AppComponent implements OnInit {
   private scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
 
+  private bufferScene: THREE.Scene;
+  private bufferTexture: THREE.WebGLRenderTarget;
+
+  private terrain: Terrain;
+  private water: Water;
   private controls: THREE.OrbitControls;
 
   constructor() {
     this.camera = Camera.Instance.Camera;
     this.scene = Scene.Instance.Scene;
+    this.bufferScene = Scene.Instance.BufferScene;
+    this.bufferTexture = Scene.Instance.BufferTexture;
     this.renderer = Renderer.Instance.Renderer;
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
   }
@@ -44,16 +51,20 @@ export class AppComponent implements OnInit {
     this.scene.add(this.camera);
     this.scene.add(new THREE.AxisHelper(1));
 
-    this.renderer.setSize(screen.width, screen.height, false);
+    this.renderer.setSize(SCREEN.width, SCREEN.height, false);
     this.container.appendChild(this.renderer.domElement);
 
-    const terrain = new Terrain(1000, 1000);
-    const water = new Water(1000, 1000);
+    this.terrain = new Terrain(1000, 1000);
+    this.water = new Water(1000, 1000);
     this.render();
   }
 
   public render(): void {
     requestAnimationFrame(() => this.render());
+    this.water.update();
+    this.renderer.clear();
+    this.renderer.render(this.bufferScene, this.camera, this.bufferTexture);
+    this.renderer.clearDepth();
     this.renderer.render(this.scene, this.camera);
     this.animate();
   }
@@ -64,8 +75,8 @@ export class AppComponent implements OnInit {
   public onWindowResize(): void {
     SCREEN.width = window.innerWidth;
     SCREEN.height = window.innerHeight;
-    this.camera.aspect = screen.width / screen.height;
+    this.camera.aspect = SCREEN.width / SCREEN.height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(screen.width, screen.height);
+    this.renderer.setSize(SCREEN.width, SCREEN.height);
   }
 }

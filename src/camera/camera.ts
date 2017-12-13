@@ -17,7 +17,7 @@ export class Camera {
     }
 
     private init(): void {
-        this.camera.position.set(200, 200, 200);
+        this.camera.position.set(0, 4000, 0);
         this.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
