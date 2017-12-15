@@ -1,6 +1,7 @@
 import { TERRAIN_VERTEX_SHADER, TERRAIN_FRAGMENT_SHADER } from './../assets/customShaders/terrainShader';
 import { Scene } from './../scene/scene';
 import * as THREE from 'three';
+import { WATER_TRANSPARENCY } from "water/water";
 // TODO: create typing
 declare var ImprovedNoise: any;
 
@@ -111,7 +112,7 @@ export class Terrain {
             { textureRockRepeat: { value: 200 } },
             { textureGrassRepeat: { value: 200 } },
             { textureDirtRepeat: { value: 200 } },
-            { reflection: { value: 0.0 } }
+            { reflection: { value: 0.0 } },
         ]);
 
         this.materialReflection = new THREE.ShaderMaterial({

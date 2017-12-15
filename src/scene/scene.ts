@@ -34,9 +34,9 @@ export class Scene {
         const dirLightHelper = new THREE.DirectionalLightHelper(this.directionnalLight);
         this.scene.add(this.directionnalLight);
         this.scene.add(this.ambientLight);
-        this.scene.add(dirLightHelper);
-        this.scene.background = new THREE.Color(0xffffff);
-        this.scene.fog = new THREE.FogExp2(0xffffff, 0.0000);
+        // this.scene.add(dirLightHelper);
+        this.scene.background = new THREE.Color(0xbecce2);
+        this.scene.fog = new THREE.FogExp2(0xbecce2, 0.0006);
 
         // this.buffDirectionnalLight.position.set(0, -400, 0);
         // this.buffDirectionnalLight.intensity = 0.2;
@@ -44,8 +44,8 @@ export class Scene {
         // this.bufferScene.add(this.buffDirectionnalLight);
         // this.bufferScene.add(this.buffAmbientLight);
         // this.scene.add(buffDirLightHelper);
-        // this.bufferScene.background = new THREE.Color(0xffffff);
-        // this.bufferScene.fog = new THREE.FogExp2(0xffffff, 0.0000);
+        this.bufferScene.background = new THREE.Color(0xbecce2);
+        this.bufferScene.fog = new THREE.FogExp2(0xbecce2, 0.0006);
     }
 
     public static get Instance(): Scene {

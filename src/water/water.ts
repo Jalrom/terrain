@@ -2,6 +2,7 @@ import { Scene } from 'scene/scene';
 import * as THREE from 'three';
 import { WATER_VERTEX_SHADER, WATER_FRAGMENT_SHADER } from 'assets/customShaders/waterShader';
 
+export const WATER_TRANSPARENCY = 0.7;
 export class Water {
     private scene: THREE.Scene;
 
@@ -34,13 +35,15 @@ export class Water {
             const uniforms = THREE.UniformsUtils.merge([
             THREE.ShaderLib.phong.uniforms,
             { tDiffuse: { type: 't', value: Scene.Instance.BufferTexture.texture } },
+            { opacity: {value: WATER_TRANSPARENCY}}
         ]);
 
         this.material = new THREE.ShaderMaterial({
             uniforms: uniforms,
             vertexShader: WATER_VERTEX_SHADER,
             fragmentShader: WATER_FRAGMENT_SHADER,
-            lights: true
+            lights: true,
+            transparent: true
         });
 
         uniforms.tDiffuse.value.needsUpdate = true;
