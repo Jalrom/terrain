@@ -3,9 +3,14 @@ import { SCREEN } from 'app/app.component';
 
 export class Scene {
     private static _instance: Scene;
+
     private scene: THREE.Scene;
-    private bufferScene: THREE.Scene;
-    private bufferTexture: THREE.WebGLRenderTarget;
+    private bufferSceneRefraction: THREE.Scene;
+    private bufferSceneReflection: THREE.Scene;
+
+    private bufferTextureReflection: THREE.WebGLRenderTarget;
+    private bufferTextureRefraction: THREE.WebGLRenderTarget;
+
     private ambientLight: THREE.AmbientLight;
     private directionnalLight: THREE.DirectionalLight;
     private buffAmbientLight: THREE.AmbientLight;
@@ -19,8 +24,10 @@ export class Scene {
             format: THREE.RGBFormat,
             stencilBuffer: false
         };
-        this.bufferScene = new THREE.Scene();
-        this.bufferTexture = new THREE.WebGLRenderTarget(SCREEN.width, SCREEN.height, parameters);
+        this.bufferSceneReflection = new THREE.Scene();
+        this.bufferSceneRefraction = new THREE.Scene();
+        this.bufferTextureReflection = new THREE.WebGLRenderTarget(SCREEN.width, SCREEN.height, parameters);
+        this.bufferTextureRefraction = new THREE.WebGLRenderTarget(SCREEN.width, SCREEN.height, parameters);
         this.ambientLight = new THREE.AmbientLight(0x333333);
         this.directionnalLight = new THREE.DirectionalLight(0xffffff);
         this.buffAmbientLight = new THREE.AmbientLight(0x333333);
@@ -29,23 +36,33 @@ export class Scene {
     }
 
     private init(): void {
-        this.directionnalLight.position.set(0, 400, 0);
+        this.directionnalLight.position.set(0, -400, 0);
         this.directionnalLight.intensity = 5.0;
         const dirLightHelper = new THREE.DirectionalLightHelper(this.directionnalLight);
         this.scene.add(this.directionnalLight);
         this.scene.add(this.ambientLight);
-        // this.scene.add(dirLightHelper);
         this.scene.background = new THREE.Color(0xbecce2);
-        this.scene.fog = new THREE.FogExp2(0xbecce2, 0.0006);
+        // this.scene.fog = new THREE.FogExp2(0xbecce2, 0.0006);
 
-        // this.buffDirectionnalLight.position.set(0, -400, 0);
-        // this.buffDirectionnalLight.intensity = 0.2;
-        // const buffDirLightHelper = new THREE.DirectionalLightHelper(this.buffDirectionnalLight);
-        // this.bufferScene.add(this.buffDirectionnalLight);
-        // this.bufferScene.add(this.buffAmbientLight);
-        // this.scene.add(buffDirLightHelper);
-        this.bufferScene.background = new THREE.Color(0xbecce2);
-        this.bufferScene.fog = new THREE.FogExp2(0xbecce2, 0.0006);
+        const refractionDirLight = new THREE.DirectionalLight(0xffffff);
+        refractionDirLight.intensity = 5.0;
+        refractionDirLight.position.set(0, -400, 0);
+
+        const refractionAmbientLight = new THREE.AmbientLight(0x333333);
+        this.bufferSceneRefraction.add(refractionDirLight);
+        this.bufferSceneRefraction.add(refractionAmbientLight);
+        this.bufferSceneRefraction.background = new THREE.Color(0xbecce2);
+        // this.bufferSceneRefraction.fog = new THREE.FogExp2(0xbecce2, 0.0006);
+
+        const reflectionDirLight = new THREE.DirectionalLight(0xffffff);
+        reflectionDirLight.intensity = 5.0;
+        reflectionDirLight.position.set(0, 400, 0);
+
+        const reflectionAmbientLight = new THREE.AmbientLight(0x333333);
+        this.bufferSceneReflection.add(reflectionDirLight);
+        this.bufferSceneReflection.add(reflectionAmbientLight);
+        this.bufferSceneReflection.background = new THREE.Color(0xbecce2);
+        // this.bufferSceneRefraction.fog = new THREE.FogExp2(0xbecce2, 0.0006);
     }
 
     public static get Instance(): Scene {
@@ -57,11 +74,19 @@ export class Scene {
         return this.scene;
     }
 
-    public get BufferScene(): THREE.Scene {
-        return this.bufferScene;
+    public get BufferSceneReflection(): THREE.Scene {
+        return this.bufferSceneReflection;
     }
 
-    public get BufferTexture(): THREE.WebGLRenderTarget {
-        return this.bufferTexture;
+    public get BufferTextureReflection(): THREE.WebGLRenderTarget {
+        return this.bufferTextureReflection;
+    }
+
+    public get BufferSceneRefraction(): THREE.Scene {
+        return this.bufferSceneRefraction;
+    }
+
+    public get BufferTextureRefraction(): THREE.WebGLRenderTarget {
+        return this.bufferTextureRefraction;
     }
 }

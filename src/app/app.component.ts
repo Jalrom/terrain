@@ -26,8 +26,11 @@ export class AppComponent implements OnInit {
   private scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
 
-  private bufferScene: THREE.Scene;
-  private bufferTexture: THREE.WebGLRenderTarget;
+  private bufferSceneRefraction: THREE.Scene;
+  private bufferTextureRefraction: THREE.WebGLRenderTarget;
+
+  private bufferSceneReflection: THREE.Scene;
+  private bufferTextureReflection: THREE.WebGLRenderTarget;
 
   private terrain: Terrain;
   private water: Water;
@@ -36,8 +39,10 @@ export class AppComponent implements OnInit {
   constructor() {
     this.camera = Camera.Instance.Camera;
     this.scene = Scene.Instance.Scene;
-    this.bufferScene = Scene.Instance.BufferScene;
-    this.bufferTexture = Scene.Instance.BufferTexture;
+    this.bufferSceneRefraction = Scene.Instance.BufferSceneRefraction;
+    this.bufferTextureRefraction = Scene.Instance.BufferTextureRefraction;
+    this.bufferSceneReflection = Scene.Instance.BufferSceneReflection;
+    this.bufferTextureReflection = Scene.Instance.BufferTextureReflection;
     this.renderer = Renderer.Instance.Renderer;
     this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
   }
@@ -56,16 +61,26 @@ export class AppComponent implements OnInit {
 
     this.terrain = new Terrain(1000, 1000);
     this.water = new Water(1000, 1000);
-    this.renderer.localClippingEnabled = true;
-    this.terrain.getMeshReflection().translateY(25.0);
     this.render();
   }
 
   public render(): void {
     requestAnimationFrame(() => this.render());
     this.water.update();
-    
-    this.renderer.render(this.bufferScene, this.camera, this.bufferTexture);
+    // Render Terrain Reflection
+    this.terrain.getMaterial().side = THREE.BackSide;
+    this.terrain.getMaterial().uniforms.waterHeight.value = 25.0;
+    this.terrain.getMaterial().uniforms.clipPlane.value = new THREE.Vector4(0.0, 1.0, 0.0, -this.water.getHeight());
+    this.renderer.render(this.bufferSceneReflection, this.camera, this.bufferTextureReflection);
+    this.terrain.getMaterial().uniforms.waterHeight.value = 0.0;
+    this.terrain.getMaterial().side = THREE.FrontSide;
+
+    // Render Terrain Refraction
+    this.terrain.getMaterial().uniforms.clipPlane.value = new THREE.Vector4(0.0, -1.0, 0.0, this.water.getHeight());
+    this.renderer.render(this.bufferSceneRefraction, this.camera, this.bufferTextureRefraction);
+
+    // Render Terrain
+    this.terrain.getMaterial().uniforms.clipPlane.value = new THREE.Vector4(0.0, 1.0, 0.0, -this.water.getHeight());
     this.renderer.render(this.scene, this.camera);
     this.animate();
   }

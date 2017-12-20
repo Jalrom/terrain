@@ -3,8 +3,8 @@ import * as THREE from 'three';
 const VIEW = {
     angle: 45,
     aspect: screen.width / screen.height,
-    near: 0.1,
-    far: 10000
+    near: 0.3,
+    far: 100000
 };
 
 export class Camera {

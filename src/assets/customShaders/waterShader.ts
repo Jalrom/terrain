@@ -4,8 +4,10 @@ export const WATER_VERTEX_SHADER =
 
     varying vec3 vViewPosition;
     varying vec4 pos;
-    varying vec3 rawPos;
+    varying vec2 textureCoords;
     varying vec2 vUv;
+    uniform vec3 camPos;
+    varying vec3 toCameraVector;
 
     #ifndef FLAT_SHADED
         varying vec3 vNormal;
@@ -57,22 +59,27 @@ export const WATER_VERTEX_SHADER =
         #include <shadowmap_vertex>
         #include <fog_vertex>
         
-        vUv = uv;
-        rawPos = vec3(position.x, position.y, position.z);
-        vec4 modelViewPosition = modelViewMatrix * vec4(rawPos, 1.0);
+        vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * modelViewPosition;
+        vUv = uv;
         pos = vec4(gl_Position.x, gl_Position.y, gl_Position.z, gl_Position.w) ;
+        toCameraVector = camPos.xyz - modelViewPosition.xyz;
     }`;
 
 export const WATER_FRAGMENT_SHADER =
     `
 #define PHONG
 
-uniform sampler2D tDiffuse;
-
+uniform sampler2D reflectionTexture;
+uniform sampler2D refractionTexture;
+uniform sampler2D dudvMap;
+uniform sampler2D normalMap;
+uniform float moveFactor;
+ 
 varying vec2 vUv;
 varying vec4 pos;
-varying vec3 rawPos;
+varying vec2 textureCoords;
+varying vec3 toCameraVector;
 
 uniform vec3 diffuse;
 uniform vec3 emissive;
@@ -121,6 +128,8 @@ void main() {
 	#include <normal_fragment>
 	#include <emissivemap_fragment>
 
+        
+
 	// accumulation
 	#include <lights_phong_fragment>
 	#include <lights_template>
@@ -132,8 +141,28 @@ void main() {
 
 	#include <envmap_fragment>
 
-    vec2 screen = (pos.xy/pos.z + 1.0)*0.5;
-	gl_FragColor = clamp( texture2D( tDiffuse, screen) * vec4( outgoingLight, diffuseColor.a ), 0.0, 1.0);
+    vec2 screen = (vec2(pos.x, pos.y )/pos.w + 1.0)*0.5;    
+
+    vec2 reflectionTextureCoord = vec2(screen.x, screen.y);
+    vec2 refractionTextureCoord = vec2(screen.x, screen.y);
+
+    vec2 distortedTexCoords = texture2D(dudvMap, vec2(vUv.x + moveFactor, vUv.y) * 200.0).rg * 0.1;
+    distortedTexCoords = vUv + vec2(distortedTexCoords.x, distortedTexCoords.y + moveFactor);
+    vec2 totalDistortion = (texture2D(dudvMap, distortedTexCoords).rg * 2.0 - 1.0) * 0.2;
+
+    // reflectionTextureCoord += totalDistortion;
+    // refractionTextureCoord += totalDistortion;
+    // reflectionTextureCoord = clamp (reflectionTextureCoord, 0.001, 0.999);
+    // refractionTextureCoord = clamp (refractionTextureCoord, 0.001, 0.999);
+
+    vec3 viewVector = normalize(toCameraVector);
+    float refractiveFactor = dot(viewVector, vec3( 0.0, 1.0, 0.0) );
+    refractiveFactor = pow(refractiveFactor, 0.5);
+    
+    vec4 colorOut = clamp( mix(texture2D(reflectionTexture, reflectionTextureCoord),
+                                texture2D(refractionTexture, refractionTextureCoord),
+                                0.5), 0.0, 1.0);
+	gl_FragColor = mix(colorOut, vec4(0.2, 0.09, 0.02, 1.0), 0.6);
 
 	#include <tonemapping_fragment>
 	#include <encodings_fragment>

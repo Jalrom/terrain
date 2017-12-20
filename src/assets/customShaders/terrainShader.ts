@@ -2,8 +2,9 @@ export const TERRAIN_VERTEX_SHADER =
     `
     #define PHONG
 
-    uniform float reflection;
-    varying vec3 rawPos;
+    uniform vec4 clipPlane;
+    uniform float waterHeight;
+    varying float shouldClip;
     varying vec3 vViewPosition;
     varying vec3 vUv;
     varying vec2 tUv;
@@ -60,14 +61,10 @@ export const TERRAIN_VERTEX_SHADER =
 
         vUv = position;
         tUv = uv;
-        if(reflection == 1.0){
-            rawPos = vec3(position.x, position.y - 25.0, position.z);
-            vec4 modelViewPosition = modelViewMatrix * vec4(rawPos, 1.0);
-            gl_Position = projectionMatrix * modelViewPosition;
-        } else {
-            vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-            gl_Position = projectionMatrix * modelViewPosition;
-        }
+
+        vec4 modelViewPosition = modelViewMatrix * vec4(position.x, position.y - 2.01*waterHeight, position.z, 1.0);
+        shouldClip = dot(vec4(position, 1.0), clipPlane); 
+        gl_Position = projectionMatrix * modelViewPosition;
     }`
 ;
 
@@ -87,7 +84,7 @@ export const TERRAIN_FRAGMENT_SHADER =
 
     varying vec3 vUv;
     varying vec2 tUv;
-    varying vec3 rawPos;
+    varying float shouldClip;
 
     uniform vec3 diffuse;
     uniform vec3 emissive;
@@ -130,16 +127,18 @@ export const TERRAIN_FRAGMENT_SHADER =
         vec3 actualColor;
         vec4 actualTexture;
 
-
-
         if(vUv.y > maxVal/2.0) {
             actualColor = mix(brown, white, (vUv.y - maxVal/2.0)/maxVal);
-            actualTexture = mix(texture2D(textureDirt, tUv * textureDirtRepeat),texture2D(textureRock, tUv * textureRockRepeat),(vUv.y - maxVal/2.0)/maxVal);      
+            actualTexture = mix(texture2D(textureDirt, tUv * textureDirtRepeat),
+                                texture2D(textureRock, tUv * textureRockRepeat),
+                                (vUv.y - maxVal/2.0)/maxVal);      
         } else {
             actualColor = mix(green, brown, (vUv.y + maxVal/2.0)/maxVal);
-            actualTexture = mix(texture2D(textureGrass, tUv * textureGrassRepeat),texture2D(textureDirt, tUv * textureDirtRepeat),(vUv.y + maxVal/2.0)/maxVal);      
+            actualTexture = mix(texture2D(textureGrass, tUv * textureGrassRepeat),
+                                texture2D(textureDirt, tUv * textureDirtRepeat),
+                                (vUv.y + maxVal/2.0)/maxVal);      
         }
-        // actualColor = brown;
+
         vec4 diffuseColor = vec4( actualColor, opacity );
         ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
         vec3 totalEmissiveRadiance = actualColor;
@@ -163,12 +162,11 @@ export const TERRAIN_FRAGMENT_SHADER =
         vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
 
         #include <envmap_fragment>
-        if(reflection == 1.0 && rawPos.y < 0.0){
+        if(shouldClip < 0.0){
             discard;
         } else {
             gl_FragColor = clamp(actualTexture * vec4(outgoingLight, diffuseColor.a), 0.0, 1.0);
         }
-        // gl_FragColor = vec4(outgoingLight, diffuseColor.a);
 
         #include <tonemapping_fragment>
         #include <encodings_fragment>
