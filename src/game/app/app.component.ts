@@ -61,8 +61,8 @@ export class AppComponent implements OnInit {
     this.renderer.setSize(SCREEN.width, SCREEN.height, false);
     this.container.appendChild(this.renderer.domElement);
 
-    this.terrain = new Terrain(1001, 1001);
-    this.water = new Water(1001, 1001);
+    this.terrain = new Terrain(1000, 1000);
+    this.water = new Water(1000, 1000);
     this.jsonLoaderService.loadModels().then(
       () => {
         this.player = new Player(this.jsonLoaderService, this.terrain);
@@ -75,7 +75,6 @@ export class AppComponent implements OnInit {
 
   public render(): void {
     requestAnimationFrame(() => this.render());
-    this.water.update();
 
     // Render Terrain Reflection
     this.renderer.render(this.bufferSceneReflection, this.camera, this.bufferTextureReflection);
@@ -90,7 +89,9 @@ export class AppComponent implements OnInit {
   }
 
   public update(): void {
+    this.water.update();
     this.player.update();
+    Camera.Instance.update();
   }
 
   public onWindowResize(): void {
@@ -112,4 +113,23 @@ export class AppComponent implements OnInit {
       this.player.onKeyUp(keyboardEvent);
     }
   }
+
+  public onMouseUp(mouseEvent: MouseEvent): void {
+    if (!this.loading) {
+      Camera.Instance.onMouseUp(mouseEvent);
+    }
+  }
+
+  public onMouseDown(mouseEvent: MouseEvent): void {
+    if (!this.loading) {
+      Camera.Instance.onMouseDown(mouseEvent);
+    }
+  }
+
+  public onMouseMove(mouseEvent: MouseEvent): void {
+    if (!this.loading) {
+      Camera.Instance.onMouseMove(mouseEvent);
+    }
+  }
+
 }

@@ -42,7 +42,7 @@ export class Scene {
         this.scene.add(this.directionnalLight);
         this.scene.add(this.ambientLight);
         this.scene.background = new THREE.Color(0xbecce2);
-        this.scene.fog = new THREE.FogExp2(0xbecce2, 0.0006);
+        this.scene.fog = new THREE.FogExp2(0xbecce2, 0.0025);
 
         const refractionDirLight = new THREE.DirectionalLight(0xffffff);
         refractionDirLight.intensity = 5.0;
@@ -52,7 +52,7 @@ export class Scene {
         this.bufferSceneRefraction.add(refractionDirLight);
         this.bufferSceneRefraction.add(refractionAmbientLight);
         this.bufferSceneRefraction.background = new THREE.Color(0xbecce2);
-        this.bufferSceneRefraction.fog = new THREE.FogExp2(0xbecce2, 0.0006);
+        this.bufferSceneRefraction.fog = new THREE.FogExp2(0xbecce2, 0.0025);
 
         const reflectionDirLight = new THREE.DirectionalLight(0xffffff);
         reflectionDirLight.intensity = 5.0;
@@ -62,7 +62,7 @@ export class Scene {
         this.bufferSceneReflection.add(reflectionDirLight);
         this.bufferSceneReflection.add(reflectionAmbientLight);
         this.bufferSceneReflection.background = new THREE.Color(0xbecce2);
-        this.bufferSceneRefraction.fog = new THREE.FogExp2(0xbecce2, 0.0006);
+        this.bufferSceneRefraction.fog = new THREE.FogExp2(0xbecce2, 0.0025);
     }
 
     public static get Instance(): Scene {

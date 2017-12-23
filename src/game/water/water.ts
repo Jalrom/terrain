@@ -4,7 +4,7 @@ import { Scene } from 'game/scene/scene';
 import { Camera } from 'game/camera/camera';
 
 export const WATER_OPACITY = 0.1;
-export const WATER_HEIGHT = 25.0;
+export const WATER_HEIGHT = 25.0001;
 const WAVE_SPEED = 0.002;
 export class Water {
     private scene: THREE.Scene;

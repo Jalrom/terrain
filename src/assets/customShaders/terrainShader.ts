@@ -62,7 +62,7 @@ export const TERRAIN_VERTEX_SHADER =
         vUv = position;
         tUv = uv;
 
-        vec4 modelViewPosition = modelViewMatrix * vec4(position.x, position.y - 2.01*waterHeight, position.z, 1.0);
+        vec4 modelViewPosition = modelViewMatrix * vec4(position.x, position.y - 2.0*waterHeight, position.z, 1.0);
         shouldClip = dot(vec4(position, 1.0), clipPlane); 
         gl_Position = projectionMatrix * modelViewPosition;
     }`

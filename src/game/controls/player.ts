@@ -1,7 +1,7 @@
 import { JSONLoaderService, CURLING_STONE } from 'game/utils/jsonLoader.service';
 import { Terrain, TERRAIN_DIMENSION } from 'game/terrain/terrain';
 import { WATER_HEIGHT } from 'game/water/water';
-import { Camera } from 'game/camera/camera';
+import { Camera, DISTANCE_PLAYER, DISTANCE_ABOVE_PLAYER } from 'game/camera/camera';
 import * as THREE from 'three';
 import { PlayerControls } from 'game/controls/playerControls';
 
@@ -9,11 +9,12 @@ export class Player {
     private mesh: THREE.Object3D;
     private terrain: Terrain;
     private controls: PlayerControls;
-
+    private posPlayer: THREE.Vector3;
     constructor(private jsonLoaderService: JSONLoaderService, terrain: Terrain) {
         this.terrain = terrain;
         this.mesh = this.jsonLoaderService.getModel(CURLING_STONE);
-        this.mesh.position.set(1.0, 0.0, 1.0);
+        this.mesh.position.set(0.0, 0.0, 0.0);
+        this.posPlayer = new THREE.Vector3(0, 0, 0);
         this.controls = new PlayerControls(this);
     }
 
@@ -22,9 +23,9 @@ export class Player {
     }
 
     public update(): void {
-        const terrainSegmentLength = TERRAIN_DIMENSION / this.terrain.Width;
-        const col = ~~((this.mesh.position.x + (TERRAIN_DIMENSION / 2.0) - terrainSegmentLength / 2.0) / terrainSegmentLength);
-        const row = ~~((this.mesh.position.z + (TERRAIN_DIMENSION / 2.0) - terrainSegmentLength / 2.0) / terrainSegmentLength);
+        const terrainSegmentLength = TERRAIN_DIMENSION / (this.terrain.Width - 1.0);
+        const col = ~~((this.mesh.position.x + (TERRAIN_DIMENSION / 2.0)) / terrainSegmentLength);
+        const row = ~~((this.mesh.position.z + (TERRAIN_DIMENSION / 2.0)) / terrainSegmentLength);
         const idx = col % this.terrain.Width + row * this.terrain.Width;
 
         const vertices = ((this.terrain.Terrain.geometry as any).attributes as any).position.array;
@@ -56,6 +57,14 @@ export class Player {
         // Player position with unknown y
         const posPlayer = new THREE.Vector3(this.mesh.position.x, 0, this.mesh.position.z);
 
+        if (this.posPlayer.x !== posPlayer.x || this.posPlayer.z !== posPlayer.z) {
+            console.log(p1);
+            console.log(p2);
+            console.log(p3);
+            console.log(p4);
+            console.log('');
+            this.posPlayer = new THREE.Vector3().copy(posPlayer);
+        }
         // Caluclate if point is inside or outside of triangle
         const v0 = new THREE.Vector2(p3.x, p3.z).sub(new THREE.Vector2(p1.x, p1.z));
         const v1 = new THREE.Vector2(p2.x, p2.z).sub(new THREE.Vector2(p1.x, p1.z));
@@ -74,26 +83,25 @@ export class Player {
         let n: THREE.Vector3;
         let v: THREE.Vector3;
         if ((u >= 0) && (ve >= 0) && (u + ve < 1)) {
-            console.log('inside');
             n = new THREE.Vector3().copy(p2).sub(p3).cross(new THREE.Vector3().copy(p1).sub(p3));
             v = new THREE.Vector3().copy(p3).sub(posPlayer);
 
         } else {
-            console.log('outside');
             n = new THREE.Vector3().copy(p4).sub(p3).cross(new THREE.Vector3().copy(p2).sub(p3));
             v = new THREE.Vector3().copy(p3).sub(posPlayer);
         }
+
         const vy = -((n.z * v.z) + (n.x * v.x)) / n.y;
         let y = p3y - vy;
         if (y < WATER_HEIGHT) {
             y = WATER_HEIGHT;
         }
 
-        this.mesh.position.setY(y);
         this.controls.update();
-
-        Camera.Instance.Camera.position.set(this.mesh.position.x, this.mesh.position.y + 1.0, this.mesh.position.z + 5.0);
-        Camera.Instance.Camera.lookAt(new THREE.Vector3(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z - 100.0));
+        this.mesh.position.setY(y);
+        Camera.Instance.Camera.position.set(this.mesh.position.x - DISTANCE_PLAYER * Math.cos(Camera.Instance.Yaw),
+            this.mesh.position.y + DISTANCE_ABOVE_PLAYER,
+            this.mesh.position.z - DISTANCE_PLAYER * Math.sin(Camera.Instance.Yaw));
     }
 
     public onKeyDown(keyboardEvent: KeyboardEvent): void {

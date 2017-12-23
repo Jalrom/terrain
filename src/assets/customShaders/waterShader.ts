@@ -146,9 +146,9 @@ void main() {
     vec2 reflectionTextureCoord = vec2(screen.x, screen.y);
     vec2 refractionTextureCoord = vec2(screen.x, screen.y);
 
-    vec2 distortedTexCoords = texture2D(dudvMap, vec2(vUv.x + moveFactor, vUv.y) * 200.0).rg * 0.1;
-    distortedTexCoords = vUv + vec2(distortedTexCoords.x, distortedTexCoords.y + moveFactor);
-    vec2 totalDistortion = (texture2D(dudvMap, distortedTexCoords).rg * 2.0 - 1.0) * 0.2;
+    // vec2 distortedTexCoords = texture2D(dudvMap, vec2(vUv.x + moveFactor, vUv.y) * 2000.0).rg * 0.1;
+    // distortedTexCoords = vUv + vec2(distortedTexCoords.x, distortedTexCoords.y + moveFactor);
+    // vec2 totalDistortion = (texture2D(dudvMap, distortedTexCoords).rg * 2.0 - 1.0) * 0.02;
 
     // reflectionTextureCoord += totalDistortion;
     // refractionTextureCoord += totalDistortion;

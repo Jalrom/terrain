@@ -7,6 +7,7 @@ declare var ImprovedNoise: any;
 
 const TERRAIN_HEIGHT = 100;
 export const TERRAIN_DIMENSION = 3000;
+
 export class Terrain {
     private static _instance: Terrain;
 
@@ -64,6 +65,7 @@ export class Terrain {
                 if (this.data[i] > this.max) {
                     this.max = this.data[i];
                 }
+                // this.data[i] = 0.0;
             }
             quality *= 5;
         }
@@ -87,12 +89,12 @@ export class Terrain {
         textureRock.wrapS = textureRock.wrapT = THREE.RepeatWrapping;
         textureGrass.wrapS = textureGrass.wrapT = THREE.RepeatWrapping;
         textureDirt.wrapS = textureDirt.wrapT = THREE.RepeatWrapping;
-        textureRock.minFilter = THREE.LinearMipMapLinearFilter;
-        textureRock.magFilter = THREE.NearestFilter;
-        textureGrass.minFilter = THREE.LinearMipMapLinearFilter;
-        textureGrass.magFilter = THREE.NearestFilter;
-        textureDirt.minFilter = THREE.LinearMipMapLinearFilter;
-        textureDirt.magFilter = THREE.NearestFilter;
+        textureRock.minFilter = THREE.LinearMipMapNearestFilter;
+        textureRock.magFilter = THREE.LinearFilter;
+        textureGrass.minFilter = THREE.LinearMipMapNearestFilter;
+        textureGrass.magFilter = THREE.LinearFilter;
+        textureDirt.minFilter = THREE.LinearMipMapNearestFilter;
+        textureDirt.magFilter = THREE.LinearFilter;
 
         // Terrain above water material
         const uniforms = THREE.UniformsUtils.merge([
@@ -103,9 +105,9 @@ export class Terrain {
             { textureRock: { type: 't', value: textureRock } },
             { textureGrass: { type: 't', value: textureGrass } },
             { textureDirt: { type: 't', value: textureDirt } },
-            { textureRockRepeat: { value: 4000 } },
-            { textureGrassRepeat: { value: 4000 } },
-            { textureDirtRepeat: { value: 4000 } },
+            { textureRockRepeat: { value: 300 } },
+            { textureGrassRepeat: { value: 300 } },
+            { textureDirtRepeat: { value: 300 } },
             { clipPlane: { type: 'v4', value: new THREE.Vector4(0, 1, 0, -WATER_HEIGHT ) } },
             { waterHeight: { value: 0.0 } }
         ]);
@@ -120,7 +122,6 @@ export class Terrain {
         this.material.uniforms.textureRock.value.needsUpdate = true;
         this.material.uniforms.textureGrass.value.needsUpdate = true;
         this.material.uniforms.textureDirt.value.needsUpdate = true;
-        this.material.uniforms.clipPlane.value.needsUpdate = true;
 
         // Terrain reflection material
         this.materialReflection = this.material.clone();
@@ -130,7 +131,6 @@ export class Terrain {
         this.materialReflection.uniforms.textureRock.value.needsUpdate = true;
         this.materialReflection.uniforms.textureGrass.value.needsUpdate = true;
         this.materialReflection.uniforms.textureDirt.value.needsUpdate = true;
-        this.materialReflection.uniforms.clipPlane.value.needsUpdate = true;
 
         // Terrain refraction material
         this.materialRefraction = this.material.clone();
@@ -138,7 +138,6 @@ export class Terrain {
         this.materialRefraction.uniforms.textureRock.value.needsUpdate = true;
         this.materialRefraction.uniforms.textureGrass.value.needsUpdate = true;
         this.materialRefraction.uniforms.textureDirt.value.needsUpdate = true;
-        this.materialRefraction.uniforms.clipPlane.value.needsUpdate = true;
     }
 
     private initMesh(): void {
