@@ -11,7 +11,7 @@ const S_KEY = 83;
 const A_KEY = 65;
 const D_KEY = 68;
 
-const SPEED = 0.1;
+const SPEED = 0.3;
 
 export class PlayerControls {
     private player: Player;

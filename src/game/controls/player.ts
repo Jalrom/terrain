@@ -99,9 +99,11 @@ export class Player {
 
         this.controls.update();
         this.mesh.position.setY(y);
-        Camera.Instance.Camera.position.set(this.mesh.position.x - DISTANCE_PLAYER * Math.cos(Camera.Instance.Yaw),
+        Camera.Instance.Camera.position.set(
+            this.mesh.position.x - DISTANCE_PLAYER * Math.cos(Camera.Instance.Yaw),
             this.mesh.position.y + DISTANCE_ABOVE_PLAYER,
-            this.mesh.position.z - DISTANCE_PLAYER * Math.sin(Camera.Instance.Yaw));
+            this.mesh.position.z - DISTANCE_PLAYER * Math.sin(Camera.Instance.Yaw)
+        );
     }
 
     public onKeyDown(keyboardEvent: KeyboardEvent): void {
