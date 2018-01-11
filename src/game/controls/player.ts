@@ -1,4 +1,4 @@
-import { JSONLoaderService, CURLING_STONE } from 'game/utils/jsonLoader.service';
+import { JSONLoaderService, CURLING_STONE, CHARACTER } from 'game/utils/jsonLoader.service';
 import { Terrain, TERRAIN_DIMENSION } from 'game/terrain/terrain';
 import { WATER_HEIGHT } from 'game/water/water';
 import { Camera, DISTANCE_PLAYER, DISTANCE_ABOVE_PLAYER } from 'game/camera/camera';
@@ -12,8 +12,9 @@ export class Player {
     private posPlayer: THREE.Vector3;
     constructor(private jsonLoaderService: JSONLoaderService, terrain: Terrain) {
         this.terrain = terrain;
-        this.mesh = this.jsonLoaderService.getModel(CURLING_STONE);
+        this.mesh = this.jsonLoaderService.getModel(CHARACTER);
         this.mesh.position.set(0.0, 0.0, 0.0);
+        this.mesh.scale.set(0.3, 0.3, 0.3);
         this.posPlayer = new THREE.Vector3(0, 0, 0);
         this.controls = new PlayerControls(this);
     }
@@ -58,11 +59,6 @@ export class Player {
         const posPlayer = new THREE.Vector3(this.mesh.position.x, 0, this.mesh.position.z);
 
         if (this.posPlayer.x !== posPlayer.x || this.posPlayer.z !== posPlayer.z) {
-            console.log(p1);
-            console.log(p2);
-            console.log(p3);
-            console.log(p4);
-            console.log('');
             this.posPlayer = new THREE.Vector3().copy(posPlayer);
         }
         // Caluclate if point is inside or outside of triangle
@@ -98,7 +94,7 @@ export class Player {
         }
 
         this.controls.update();
-        this.mesh.position.setY(y);
+        this.mesh.position.setY(y - 0.5);
         Camera.Instance.Camera.position.set(
             this.mesh.position.x - DISTANCE_PLAYER * Math.cos(Camera.Instance.Yaw),
             this.mesh.position.y + DISTANCE_ABOVE_PLAYER,

@@ -29,7 +29,6 @@ export class MouseHelper {
             this.projection.y = - ( mouseEvent.clientY / Renderer.Instance.Renderer.domElement.height ) * 2 + 1;
             this.projection.z = 0.5;
             const res = this.projection.unproject(Camera.Instance.Camera);
-            console.log(res);
             Camera.Instance.Camera.lookAt(res);
         }
     }

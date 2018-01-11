@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export const CURLING_STONE = 'curlingStone.json';
+export const CHARACTER = 'gameChar.json';
 
 import * as THREE from 'three';
 
@@ -19,7 +20,7 @@ export class JSONLoaderService {
      */
     public loadModels(): Promise<void> {
         return new Promise<void>((resolve, error) => {
-            this.loadModel(CURLING_STONE).then(() => {
+            this.loadModel(CHARACTER).then(() => {
                 resolve();
             });
         });
